@@ -1,0 +1,619 @@
+{
+  "Resources": {
+    "cdklambdaroleD410F7DF": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "lambda.amazonaws.com"
+              }
+            }
+          ],
+          "Version": "2012-10-17"
+        },
+        "ManagedPolicyArns": [
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition"
+                },
+                ":iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole"
+              ]
+            ]
+          },
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition"
+                },
+                ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+              ]
+            ]
+          }
+        ],
+        "RoleName": "cdk-lambda-role"
+      },
+      "Metadata": {
+        "aws:cdk:path": "PipelineStack/Prod/WebService/cdk-lambda-role/Resource"
+      }
+    },
+    "cdkr4plambda7C8F1B1F": {
+      "Type": "AWS::Lambda::Function",
+      "Properties": {
+        "Code": {
+          "S3Bucket": "cdk-hnb659fds-assets-285965347348-us-east-1",
+          "S3Key": "9d9133a498403335f375c71df5369548ab86c745101deb7cdb96a8ea9d74ec76.zip"
+        },
+        "Role": {
+          "Fn::GetAtt": [
+            "cdklambdaroleD410F7DF",
+            "Arn"
+          ]
+        },
+        "Description": "Lambda function deployed using AWS CDK Python",
+        "FunctionName": "cdk-r4p-lambda",
+        "Handler": "slack_alerts.lambda_handler",
+        "Runtime": "python3.8"
+      },
+      "DependsOn": [
+        "cdklambdaroleD410F7DF"
+      ],
+      "Metadata": {
+        "aws:cdk:path": "PipelineStack/Prod/WebService/cdk-r4p-lambda/Resource",
+        "aws:asset:path": "../asset.9d9133a498403335f375c71df5369548ab86c745101deb7cdb96a8ea9d74ec76",
+        "aws:asset:property": "Code"
+      }
+    },
+    "cdkr4plambdaCurrentVersion97CEC7D8fa1497c8886412799286a48ed2c58e17": {
+      "Type": "AWS::Lambda::Version",
+      "Properties": {
+        "FunctionName": {
+          "Ref": "cdkr4plambda7C8F1B1F"
+        }
+      },
+      "Metadata": {
+        "aws:cdk:path": "PipelineStack/Prod/WebService/cdk-r4p-lambda/CurrentVersion/Resource"
+      }
+    },
+    "HandlerAlias736CE376": {
+      "Type": "AWS::Lambda::Alias",
+      "Properties": {
+        "FunctionName": {
+          "Ref": "cdkr4plambda7C8F1B1F"
+        },
+        "FunctionVersion": {
+          "Fn::GetAtt": [
+            "cdkr4plambdaCurrentVersion97CEC7D8fa1497c8886412799286a48ed2c58e17",
+            "Version"
+          ]
+        },
+        "Name": "Current"
+      },
+      "UpdatePolicy": {
+        "CodeDeployLambdaAliasUpdate": {
+          "ApplicationName": {
+            "Ref": "DeploymentGroupApplication7B89ABEB"
+          },
+          "DeploymentGroupName": {
+            "Ref": "DeploymentGroup6D277AF0"
+          }
+        }
+      },
+      "Metadata": {
+        "aws:cdk:path": "PipelineStack/Prod/WebService/HandlerAlias/Resource"
+      }
+    },
+    "Gateway43CB3636": {
+      "Type": "AWS::ApiGateway::RestApi",
+      "Properties": {
+        "Description": "Endpoint for a simple Lambda-powered web service",
+        "Name": "Gateway"
+      },
+      "Metadata": {
+        "aws:cdk:path": "PipelineStack/Prod/WebService/Gateway/Resource"
+      }
+    },
+    "GatewayCloudWatchRole34305E06": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "apigateway.amazonaws.com"
+              }
+            }
+          ],
+          "Version": "2012-10-17"
+        },
+        "ManagedPolicyArns": [
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition"
+                },
+                ":iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs"
+              ]
+            ]
+          }
+        ]
+      },
+      "Metadata": {
+        "aws:cdk:path": "PipelineStack/Prod/WebService/Gateway/CloudWatchRole/Resource"
+      }
+    },
+    "GatewayAccount6D7AA49C": {
+      "Type": "AWS::ApiGateway::Account",
+      "Properties": {
+        "CloudWatchRoleArn": {
+          "Fn::GetAtt": [
+            "GatewayCloudWatchRole34305E06",
+            "Arn"
+          ]
+        }
+      },
+      "DependsOn": [
+        "Gateway43CB3636"
+      ],
+      "Metadata": {
+        "aws:cdk:path": "PipelineStack/Prod/WebService/Gateway/Account"
+      }
+    },
+    "GatewayDeployment880EB8C2caffa3215506c598d83345325b51070d": {
+      "Type": "AWS::ApiGateway::Deployment",
+      "Properties": {
+        "RestApiId": {
+          "Ref": "Gateway43CB3636"
+        },
+        "Description": "Automatically created by the RestApi construct"
+      },
+      "DependsOn": [
+        "GatewayproxyANYCE067C19",
+        "Gatewayproxy441946D2",
+        "GatewayANY8DB43F89"
+      ],
+      "Metadata": {
+        "aws:cdk:path": "PipelineStack/Prod/WebService/Gateway/Deployment/Resource"
+      }
+    },
+    "GatewayDeploymentStageprod62BC6904": {
+      "Type": "AWS::ApiGateway::Stage",
+      "Properties": {
+        "RestApiId": {
+          "Ref": "Gateway43CB3636"
+        },
+        "DeploymentId": {
+          "Ref": "GatewayDeployment880EB8C2caffa3215506c598d83345325b51070d"
+        },
+        "StageName": "prod"
+      },
+      "Metadata": {
+        "aws:cdk:path": "PipelineStack/Prod/WebService/Gateway/DeploymentStage.prod/Resource"
+      }
+    },
+    "Gatewayproxy441946D2": {
+      "Type": "AWS::ApiGateway::Resource",
+      "Properties": {
+        "ParentId": {
+          "Fn::GetAtt": [
+            "Gateway43CB3636",
+            "RootResourceId"
+          ]
+        },
+        "PathPart": "{proxy+}",
+        "RestApiId": {
+          "Ref": "Gateway43CB3636"
+        }
+      },
+      "Metadata": {
+        "aws:cdk:path": "PipelineStack/Prod/WebService/Gateway/Default/{proxy+}/Resource"
+      }
+    },
+    "GatewayproxyANYApiPermissionPipelineStackProdWebServiceGatewayBB63AEBEANYproxyC56365B4": {
+      "Type": "AWS::Lambda::Permission",
+      "Properties": {
+        "Action": "lambda:InvokeFunction",
+        "FunctionName": {
+          "Ref": "HandlerAlias736CE376"
+        },
+        "Principal": "apigateway.amazonaws.com",
+        "SourceArn": {
+          "Fn::Join": [
+            "",
+            [
+              "arn:",
+              {
+                "Ref": "AWS::Partition"
+              },
+              ":execute-api:us-east-1:285965347348:",
+              {
+                "Ref": "Gateway43CB3636"
+              },
+              "/",
+              {
+                "Ref": "GatewayDeploymentStageprod62BC6904"
+              },
+              "/*/*"
+            ]
+          ]
+        }
+      },
+      "Metadata": {
+        "aws:cdk:path": "PipelineStack/Prod/WebService/Gateway/Default/{proxy+}/ANY/ApiPermission.PipelineStackProdWebServiceGatewayBB63AEBE.ANY..{proxy+}"
+      }
+    },
+    "GatewayproxyANYApiPermissionTestPipelineStackProdWebServiceGatewayBB63AEBEANYproxyB781B661": {
+      "Type": "AWS::Lambda::Permission",
+      "Properties": {
+        "Action": "lambda:InvokeFunction",
+        "FunctionName": {
+          "Ref": "HandlerAlias736CE376"
+        },
+        "Principal": "apigateway.amazonaws.com",
+        "SourceArn": {
+          "Fn::Join": [
+            "",
+            [
+              "arn:",
+              {
+                "Ref": "AWS::Partition"
+              },
+              ":execute-api:us-east-1:285965347348:",
+              {
+                "Ref": "Gateway43CB3636"
+              },
+              "/test-invoke-stage/*/*"
+            ]
+          ]
+        }
+      },
+      "Metadata": {
+        "aws:cdk:path": "PipelineStack/Prod/WebService/Gateway/Default/{proxy+}/ANY/ApiPermission.Test.PipelineStackProdWebServiceGatewayBB63AEBE.ANY..{proxy+}"
+      }
+    },
+    "GatewayproxyANYCE067C19": {
+      "Type": "AWS::ApiGateway::Method",
+      "Properties": {
+        "HttpMethod": "ANY",
+        "ResourceId": {
+          "Ref": "Gatewayproxy441946D2"
+        },
+        "RestApiId": {
+          "Ref": "Gateway43CB3636"
+        },
+        "AuthorizationType": "NONE",
+        "Integration": {
+          "IntegrationHttpMethod": "POST",
+          "Type": "AWS_PROXY",
+          "Uri": {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition"
+                },
+                ":apigateway:us-east-1:lambda:path/2015-03-31/functions/",
+                {
+                  "Ref": "HandlerAlias736CE376"
+                },
+                "/invocations"
+              ]
+            ]
+          }
+        }
+      },
+      "Metadata": {
+        "aws:cdk:path": "PipelineStack/Prod/WebService/Gateway/Default/{proxy+}/ANY/Resource"
+      }
+    },
+    "GatewayANYApiPermissionPipelineStackProdWebServiceGatewayBB63AEBEANYC4DEA85D": {
+      "Type": "AWS::Lambda::Permission",
+      "Properties": {
+        "Action": "lambda:InvokeFunction",
+        "FunctionName": {
+          "Ref": "HandlerAlias736CE376"
+        },
+        "Principal": "apigateway.amazonaws.com",
+        "SourceArn": {
+          "Fn::Join": [
+            "",
+            [
+              "arn:",
+              {
+                "Ref": "AWS::Partition"
+              },
+              ":execute-api:us-east-1:285965347348:",
+              {
+                "Ref": "Gateway43CB3636"
+              },
+              "/",
+              {
+                "Ref": "GatewayDeploymentStageprod62BC6904"
+              },
+              "/*/"
+            ]
+          ]
+        }
+      },
+      "Metadata": {
+        "aws:cdk:path": "PipelineStack/Prod/WebService/Gateway/Default/ANY/ApiPermission.PipelineStackProdWebServiceGatewayBB63AEBE.ANY.."
+      }
+    },
+    "GatewayANYApiPermissionTestPipelineStackProdWebServiceGatewayBB63AEBEANY1887BEEC": {
+      "Type": "AWS::Lambda::Permission",
+      "Properties": {
+        "Action": "lambda:InvokeFunction",
+        "FunctionName": {
+          "Ref": "HandlerAlias736CE376"
+        },
+        "Principal": "apigateway.amazonaws.com",
+        "SourceArn": {
+          "Fn::Join": [
+            "",
+            [
+              "arn:",
+              {
+                "Ref": "AWS::Partition"
+              },
+              ":execute-api:us-east-1:285965347348:",
+              {
+                "Ref": "Gateway43CB3636"
+              },
+              "/test-invoke-stage/*/"
+            ]
+          ]
+        }
+      },
+      "Metadata": {
+        "aws:cdk:path": "PipelineStack/Prod/WebService/Gateway/Default/ANY/ApiPermission.Test.PipelineStackProdWebServiceGatewayBB63AEBE.ANY.."
+      }
+    },
+    "GatewayANY8DB43F89": {
+      "Type": "AWS::ApiGateway::Method",
+      "Properties": {
+        "HttpMethod": "ANY",
+        "ResourceId": {
+          "Fn::GetAtt": [
+            "Gateway43CB3636",
+            "RootResourceId"
+          ]
+        },
+        "RestApiId": {
+          "Ref": "Gateway43CB3636"
+        },
+        "AuthorizationType": "NONE",
+        "Integration": {
+          "IntegrationHttpMethod": "POST",
+          "Type": "AWS_PROXY",
+          "Uri": {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition"
+                },
+                ":apigateway:us-east-1:lambda:path/2015-03-31/functions/",
+                {
+                  "Ref": "HandlerAlias736CE376"
+                },
+                "/invocations"
+              ]
+            ]
+          }
+        }
+      },
+      "Metadata": {
+        "aws:cdk:path": "PipelineStack/Prod/WebService/Gateway/Default/ANY/Resource"
+      }
+    },
+    "FailureAlarm93B41FAF": {
+      "Type": "AWS::CloudWatch::Alarm",
+      "Properties": {
+        "ComparisonOperator": "GreaterThanOrEqualToThreshold",
+        "EvaluationPeriods": 1,
+        "Dimensions": [
+          {
+            "Name": "ApiName",
+            "Value": "Gateway"
+          }
+        ],
+        "MetricName": "5XXError",
+        "Namespace": "AWS/ApiGateway",
+        "Period": 60,
+        "Statistic": "Sum",
+        "Threshold": 1
+      },
+      "Metadata": {
+        "aws:cdk:path": "PipelineStack/Prod/WebService/FailureAlarm/Resource"
+      }
+    },
+    "DeploymentGroupApplication7B89ABEB": {
+      "Type": "AWS::CodeDeploy::Application",
+      "Properties": {
+        "ComputePlatform": "Lambda"
+      },
+      "Metadata": {
+        "aws:cdk:path": "PipelineStack/Prod/WebService/DeploymentGroup/Application/Resource"
+      }
+    },
+    "DeploymentGroupServiceRoleA00955F3": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "codedeploy.us-east-1.amazonaws.com"
+              }
+            }
+          ],
+          "Version": "2012-10-17"
+        },
+        "ManagedPolicyArns": [
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition"
+                },
+                ":iam::aws:policy/service-role/AWSCodeDeployRoleForLambdaLimited"
+              ]
+            ]
+          }
+        ]
+      },
+      "Metadata": {
+        "aws:cdk:path": "PipelineStack/Prod/WebService/DeploymentGroup/ServiceRole/Resource"
+      }
+    },
+    "DeploymentGroup6D277AF0": {
+      "Type": "AWS::CodeDeploy::DeploymentGroup",
+      "Properties": {
+        "ApplicationName": {
+          "Ref": "DeploymentGroupApplication7B89ABEB"
+        },
+        "ServiceRoleArn": {
+          "Fn::GetAtt": [
+            "DeploymentGroupServiceRoleA00955F3",
+            "Arn"
+          ]
+        },
+        "AlarmConfiguration": {
+          "Alarms": [
+            {
+              "Name": {
+                "Ref": "FailureAlarm93B41FAF"
+              }
+            }
+          ],
+          "Enabled": true
+        },
+        "AutoRollbackConfiguration": {
+          "Enabled": true,
+          "Events": [
+            "DEPLOYMENT_FAILURE",
+            "DEPLOYMENT_STOP_ON_ALARM"
+          ]
+        },
+        "DeploymentConfigName": "CodeDeployDefault.LambdaCanary10Percent10Minutes",
+        "DeploymentStyle": {
+          "DeploymentOption": "WITH_TRAFFIC_CONTROL",
+          "DeploymentType": "BLUE_GREEN"
+        }
+      },
+      "Metadata": {
+        "aws:cdk:path": "PipelineStack/Prod/WebService/DeploymentGroup/Resource"
+      }
+    },
+    "CDKMetadata": {
+      "Type": "AWS::CDK::Metadata",
+      "Properties": {
+        "Analytics": "v2:deflate64:H4sIAAAAAAAAA12QzU7DMBCEn6V3121UEFfSIriAiIrEfdksraljW/5Riay8O7bThKonfzu2d3em4rGq7vh68Qhnt8T2tIqoLfH44QFPrHaOfMKDUAe208p5G9CzPTkdLBLbfav34E3wmSZ1YLlXlNB9tcDjc1DohVb5ycyfZN1Fm7CWAlwWZmjIdsLly9TSiAN4OkPP42vpnMb52ojL5AlrRB2UZ09kpO47UmW1qyq7KYuPMC29BUessfq3vzY38xv5o26zNNIwDKyq7q+DK6YFdDzutRx/p3NgbrOEHKPjJc1U823AE/kyEqUO7Rk8HnmsJdhuTCDBwFC31JbNJ8//Pl6sDoaNam2MFAhTyDflzZ+8edMnD2q14Q+8Wi9+nBBLm0ITHfH9eP4B1BQYOhgCAAA="
+      },
+      "Metadata": {
+        "aws:cdk:path": "PipelineStack/Prod/WebService/CDKMetadata/Default"
+      }
+    }
+  },
+  "Outputs": {
+    "GatewayEndpoint4DF49EE0": {
+      "Value": {
+        "Fn::Join": [
+          "",
+          [
+            "https://",
+            {
+              "Ref": "Gateway43CB3636"
+            },
+            ".execute-api.us-east-1.",
+            {
+              "Ref": "AWS::URLSuffix"
+            },
+            "/",
+            {
+              "Ref": "GatewayDeploymentStageprod62BC6904"
+            },
+            "/"
+          ]
+        ]
+      }
+    },
+    "Url": {
+      "Value": {
+        "Fn::Join": [
+          "",
+          [
+            "https://",
+            {
+              "Ref": "Gateway43CB3636"
+            },
+            ".execute-api.us-east-1.",
+            {
+              "Ref": "AWS::URLSuffix"
+            },
+            "/",
+            {
+              "Ref": "GatewayDeploymentStageprod62BC6904"
+            },
+            "/"
+          ]
+        ]
+      }
+    }
+  },
+  "Parameters": {
+    "BootstrapVersion": {
+      "Type": "AWS::SSM::Parameter::Value<String>",
+      "Default": "/cdk-bootstrap/hnb659fds/version",
+      "Description": "Version of the CDK Bootstrap resources in this environment, automatically retrieved from SSM Parameter Store."
+    }
+  },
+  "Rules": {
+    "CheckBootstrapVersion": {
+      "Assertions": [
+        {
+          "Assert": {
+            "Fn::Not": [
+              {
+                "Fn::Contains": [
+                  [
+                    "1",
+                    "2",
+                    "3",
+                    "4",
+                    "5"
+                  ],
+                  {
+                    "Ref": "BootstrapVersion"
+                  }
+                ]
+              }
+            ]
+          },
+          "AssertDescription": "CDK bootstrap stack version 6 required. Please run 'cdk bootstrap' with a recent version of the CDK CLI."
+        }
+      ]
+    }
+  }
+}

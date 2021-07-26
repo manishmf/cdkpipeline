@@ -1,0 +1,7 @@
+README.md
+setup.py
+pipelines_webinar/pipelines_webinar.egg-info/PKG-INFO
+pipelines_webinar/pipelines_webinar.egg-info/SOURCES.txt
+pipelines_webinar/pipelines_webinar.egg-info/dependency_links.txt
+pipelines_webinar/pipelines_webinar.egg-info/requires.txt
+pipelines_webinar/pipelines_webinar.egg-info/top_level.txt
